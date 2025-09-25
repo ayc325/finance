@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/index.tsx","./src/components/categorychart.tsx","./src/components/fileupload.tsx","./src/components/spendinganalysis.tsx","./src/components/transactiontable.tsx","./src/types/index.ts","./src/utils/analysis.ts","./src/utils/categorizer.ts","./src/utils/pdfparser.ts"],"errors":true,"version":"5.8.3"}
