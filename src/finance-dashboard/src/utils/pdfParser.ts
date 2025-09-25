@@ -1,31 +1,49 @@
-import { PDFDocument } from 'pdf-lib';
+import { Transaction } from '../types';
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
+import { WorkerMessageHandler } from 'pdfjs-dist/build/pdf.worker.min.mjs';
 
-export interface Transaction {
-  date: string;
-  description: string;
-  amount: number;
-  category?: string;
-}
+// Set the worker source using the ES module URL
+(pdfjsLib as any).GlobalWorkerOptions.workerSrc = new URL(
+  WorkerMessageHandler,
+  import.meta.url
+).toString();
 
 export const parsePDF = async (file: File): Promise<string[]> => {
   const pdfData = await file.arrayBuffer();
-  const pdfDoc = await PDFDocument.load(pdfData);
+  const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
   const textContent: string[] = [];
 
-  for (let i = 0; i < pdfDoc.getPageCount(); i++) {
-    const page = pdfDoc.getPage(i);
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
     const text = await page.getTextContent();
-    const textItems = text.items.map(item => item.str);
-    textContent.push(...textItems);
+    const pageText = text.items.map((item: any) => item.str).join(' ');
+    textContent.push(pageText);
   }
+
+  console.log('Parsed PDF text:', textContent);
 
   return textContent;
 };
 
 export const extractTransactions = (text: string[]): Transaction[] => {
   const transactions: Transaction[] = [];
-  // Logic to parse text and extract transactions goes here
-  // This will depend on the format of the PDF statements
+  // This regex matches: date, description, amount (with optional negative sign)
+  const transactionRegex = /(\d{2}\/\d{2})\s+([A-Z0-9* .\-]+?)\s+(-?\d{1,3}(?:,\d{3})*(?:\.\d{2}))/g;
+
+  text.forEach(pageText => {
+    let match;
+    while ((match = transactionRegex.exec(pageText)) !== null) {
+      const [, date, description, amountStr] = match;
+      const amount = parseFloat(amountStr.replace(/,/g, ''));
+      transactions.push({
+        date,
+        description: description.trim(),
+        amount,
+      });
+    }
+  });
+
+  console.log('Extracted transactions:', transactions);
 
   return transactions;
 };

@@ -12,7 +12,8 @@ export function analyzeTransactions(transactions: Transaction[], income: number)
   let totalExpenses = 0;
 
   transactions.forEach(transaction => {
-    const { amount, category } = transaction;
+    const amount = typeof transaction.amount === 'number' ? transaction.amount : 0;
+    const category = transaction.category || 'Uncategorized';
     totalExpenses += amount;
 
     if (spendingByCategory[category]) {

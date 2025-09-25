@@ -2,10 +2,14 @@ import React from 'react';
 import { AnalysisResult } from '../types';
 
 interface SpendingAnalysisProps {
-  analysisResult: AnalysisResult;
+  analysisResult: AnalysisResult | null;
 }
 
 const SpendingAnalysis: React.FC<SpendingAnalysisProps> = ({ analysisResult }) => {
+  if (!analysisResult) {
+    return <div className="spending-analysis">No analysis available.</div>;
+  }
+
   const { totalIncome, totalExpenses, netIncome, categorizedExpenses } = analysisResult;
 
   return (

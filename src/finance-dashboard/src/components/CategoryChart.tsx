@@ -12,6 +12,10 @@ interface CategoryChartProps {
 }
 
 const CategoryChart: React.FC<CategoryChartProps> = ({ data }) => {
+  if (!data || !data.labels || !data.values) {
+    return <div>No category data available.</div>;
+  }
+
   const chartData = {
     labels: data.labels,
     datasets: [

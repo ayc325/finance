@@ -1,9 +1,4 @@
-export interface Transaction {
-  id: string;
-  description: string;
-  amount: number;
-  date: string;
-}
+import { Transaction } from '../types';
 
 export interface CategorizedTransaction {
   transaction: Transaction;

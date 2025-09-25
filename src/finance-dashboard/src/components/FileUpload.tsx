@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
+import { parsePDF, extractTransactions } from '../utils/pdfParser';
+import { Transaction } from '../types';
 
-const FileUpload: React.FC = () => {
+interface FileUploadProps {
+  onFileUpload: (transactions: Transaction[]) => void;
+}
+
+const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
   const [file, setFile] = useState<File | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -8,11 +14,12 @@ const FileUpload: React.FC = () => {
     setFile(selectedFile);
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (file) {
-      // Trigger the parsing process here
       console.log('File uploaded:', file.name);
-      // Call the PDF parsing function from utils/pdfParser.ts
+      const textContent = await parsePDF(file);
+      const transactions = extractTransactions(textContent);
+      onFileUpload(transactions);
     } else {
       alert('Please select a file to upload.');
     }
